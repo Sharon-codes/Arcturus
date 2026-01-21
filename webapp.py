@@ -178,8 +178,10 @@ def search_spectra():
     
     return jsonify(results)
 
+# Load resources immediately for Gunicorn
+load_model_and_data()
+
 if __name__ == '__main__':
-    load_model_and_data()
     print("\n" + "="*60)
     print("🚀 Starting Meteorite Organics Web Application")
     print("="*60)
