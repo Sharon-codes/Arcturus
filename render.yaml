@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: arcturus-recon
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn webapp:app
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
