@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcturus | Meteorite Organic Discovery</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Space+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --space-black: #010103;
+            --neon-blue: #00f3ff;
+            --neon-orange: #ff6a00;
+            --neon-red: #ff003c;
+            --neon-purple: #bc13fe;
+            --glass: rgba(10, 10, 25, 0.85);
+            --border: rgba(0, 243, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--space-black);
+            color: #fff;
+            overflow-x: hidden;
+            /* overflow-y: hidden; REMOVED for expanded view */
+            min-height: 100vh;
+        }
+
+        /* --- CUSTOM SCROLLBAR --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(1, 1, 3, 0.8);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 243, 255, 0.3);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 243, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* --- BURNING METEORITE INTRO --- */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 1.5s ease-out;
+        }
+
+        .meteor-container {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 60px 20px #ff6a00, 0 0 120px 40px #ff003c;
+            filter: blur(1px);
+            animation: burnAcross 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .meteor-tail {
+            position: absolute;
+            left: -400px;
+            width: 400px;
+            height: 6px;
+            background: linear-gradient(90deg, transparent, #ff003c, #ff6a00, #fff);
+            filter: blur(6px);
+        }
+
+        @keyframes burnAcross {
+            0% {
+                transform: translate(-100vw, -100vh) scale(0.5);
+                opacity: 0;
+            }
+
+            30% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(120vw, 120vh) scale(4);
+                opacity: 0;
+            }
+        }
+
+        .system-check {
+            font-family: 'Space Mono', monospace;
+            color: var(--neon-orange);
+            margin-top: 200px;
+            letter-spacing: 5px;
+            opacity: 0;
+            animation: fadeInOut 2.5s ease forwards;
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* --- MAIN DASHBOARD LAYOUT --- */
+        #main-dashboard {
+            display: none;
+            /* Shown after intro */
+            /* Shown after intro */
+            min-height: 100vh;
+            height: auto;
+            padding: 20px;
+            grid-template-areas:
+                "nav nav nav"
+                "stats center right"
+                "footer footer footer";
+            grid-template-columns: 320px 1fr 380px;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            position: relative;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(255, 0, 60, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, rgba(0, 243, 255, 0.05) 0%, transparent 50%);
+            transition: all 0.5s ease-in-out;
+        }
+
+        /* ANALYSIS EXPANDED MODE */
+        #main-dashboard.analysis-mode {
+            grid-template-columns: 0px 1fr 450px;
+            /* 0px Left | Big Center | Wider Right */
+        }
+
+        #main-dashboard.analysis-mode .panel-left {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #main-dashboard.analysis-mode #footer-educational-content {
+            display: none !important;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 5px var(--neon-blue);
+                opacity: 0.8;
+            }
+
+            50% {
+                box-shadow: 0 0 20px var(--neon-blue);
+                opacity: 1;
+            }
+
+            100% {
+                box-shadow: 0 0 5px var(--neon-blue);
+                opacity: 0.8;
+            }
+        }
+
+        /* Space Background Elements */
+        .starfield {
+            position: fixed;
+            inset: 0;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .starfield-2 {
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10px 10px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(1px 1px at 50px 80px, white, rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 120px 240px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
+                radial-gradient(2px 2px at 300px 300px, rgba(255, 255, 255, 0.6), rgba(0, 0, 0, 0));
+            background-repeat: repeat;
+            background-size: 400px 400px;
+            opacity: 0.6;
+            z-index: -1;
+            animation: twinkle 60s linear infinite;
+        }
+
+        @keyframes twinkle {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-400px);
+            }
+        }
+
+        /* ARCTURUS BRANDING */
+        .arcturus-star {
+            width: 8px;
+            height: 8px;
+            background: #ff4500;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff4500, 0 0 25px #ff6a00;
+            display: inline-block;
+            animation: pulsar 3s infinite;
+        }
+
+        @keyframes pulsar {
+            0% {
+                opacity: 0.7;
+                transform: scale(1);
+                box-shadow: 0 0 10px #ff4500;
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.4);
+                box-shadow: 0 0 25px #ff4500, 0 0 40px #ff6a00;
+            }
+
+            100% {
+                opacity: 0.7;
+                transform: scale(1);
+                box-shadow: 0 0 10px #ff4500;
+            }
+        }
+
+        .credits-section {
+            text-align: center;
+            margin-top: 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 243, 255, 0.2);
+            color: var(--text-dim);
+            font-size: 0.8em;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .credits-links a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: 0.3s;
+        }
+
+        .credits-links a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* Nav / Header */
+        header {
+            grid-area: nav;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-bottom: 2px solid var(--neon-blue);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.2);
+            position: relative;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2em;
+            letter-spacing: 12px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        .mission-clock {
+            font-family: 'Space Mono', monospace;
+            color: var(--neon-orange);
+            text-align: right;
+            font-size: 1em;
+            letter-spacing: 1px;
+        }
+
+        /* Scrollable Panels */
+        .panel-left,
+        .panel-right {
+            height: 100%;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-left::-webkit-scrollbar,
+        .panel-right::-webkit-scrollbar,
+        .panel-center::-webkit-scrollbar {
+            display: none;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            /* overflow: hidden; Removed to fix cutting */
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, transparent 50%, var(--neon-blue) 50%);
+            opacity: 0.3;
+        }
+
+        .metric-title {
+            font-family: 'Orbitron';
+            font-size: 0.8em;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .big-number {
+            font-family: 'Orbitron';
+            font-size: 2.5em;
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* Center Analysis Panel */
+        .panel-center {
+            grid-area: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .analysis-hub {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .upload-portal {
+            border: 2px dashed var(--neon-blue);
+            background: rgba(0, 243, 255, 0.02);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-portal:hover {
+            background: rgba(0, 243, 255, 0.08);
+            border-color: #fff;
+            box-shadow: 0 0 50px rgba(0, 243, 255, 0.2);
+        }
+
+        .decode-btn {
+            background: linear-gradient(90deg, #ff003c, #ff6a00);
+            border: none;
+            color: #fff;
+            padding: 20px;
+            font-family: 'Orbitron';
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            transition: 0.3s;
+            display: block;
+            margin-top: 15px;
+        }
+
+        .decode-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #ff003c;
+        }
+
+        /* Result HUD Overlay */
+        .hologram-overlay {
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid var(--neon-blue);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            margin-top: 15px;
+        }
+
+        /* Right Discovery Panel */
+        .panel-right {
+            grid-area: right;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Panels setup to fill height */
+        .panel-left,
+        .panel-center,
+        .panel-right {
+            height: auto;
+            overflow: visible;
+        }
+
+        /* PLANETARY REFERENCE NODES */
+        .planet-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .planet-node {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 4px solid var(--neon-blue);
+        }
+
+        .planet-sphere {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .mars {
+            background: radial-gradient(circle at 30% 30%, #ff6a00, #ff003c);
+            border-left-color: #ff003c;
+            box-shadow: 0 0 15px #ff003c;
+        }
+
+        .moon {
+            background: radial-gradient(circle at 30% 30%, #e0e0e0, #808080);
+            border-left-color: #e0e0e0;
+            box-shadow: 0 0 15px #808080;
+        }
+
+        .europa {
+            background: radial-gradient(circle at 30% 30%, #00f3ff, #005f73);
+            border-left-color: #00f3ff;
+            box-shadow: 0 0 15px #00f3ff;
+        }
+
+        .jupiter {
+            background: radial-gradient(circle at 30% 30%, #d2b48c, #8b4513);
+            border-left-color: #8b4513;
+            box-shadow: 0 0 15px #8b4513;
+        }
+
+        .titan {
+            background: radial-gradient(circle at 30% 30%, #ffd700, #ff8c00);
+            border-left-color: #ff8c00;
+            box-shadow: 0 0 15px #ff8c00;
+        }
+
+        .saturn {
+            background: radial-gradient(circle at 30% 30%, #f4a460, #deb887);
+            border-left-color: #deb887;
+            box-shadow: 0 0 15px #deb887;
+        }
+
+        .planet-info h4 {
+            font-family: 'Orbitron';
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .planet-info p {
+            font-size: 0.75em;
+            color: var(--text-dim);
+        }
+
+        /* SCROLLABLE LISTS */
+        .scroll-list {
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* LOADING SPINNER */
+        .warp-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid transparent;
+            border-top-color: var(--neon-blue);
+            border-bottom-color: var(--neon-orange);
+            border-radius: 50%;
+            animation: warp 1s linear infinite;
+            display: none;
+            margin: 20px auto;
+        }
+
+        @keyframes warp {
+            100% {
+                transform: rotate(360deg) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 900px) {
+
+            #main-dashboard,
+            #main-dashboard.analysis-mode {
+                display: flex;
+                flex-direction: column;
+                grid-template-columns: 1fr;
+                /* Reset grid if fallback */
+                height: auto;
+                min-height: 100vh;
+                padding: 10px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 1.5em;
+                letter-spacing: 5px;
+            }
+
+            .mission-clock {
+                text-align: center;
+                font-size: 0.9em;
+            }
+
+            /* On mobile, even in analysis mode, we just stack them */
+            #main-dashboard.analysis-mode {
+                /* Inherits flex column */
+            }
+
+            /* Ensure left/footer still hide */
+            #main-dashboard.analysis-mode .panel-left,
+            #main-dashboard.analysis-mode #footer-educational-content {
+                display: none;
+            }
+
+            .panel-left,
+            .panel-center,
+            .panel-right {
+                width: 100%;
+            }
+
+            /* Adjust cards for mobile */
+            .card {
+                padding: 15px;
+            }
+
+            .big-number {
+                font-size: 2em;
+            }
+
+            /* Inputs */
+            .decode-btn {
+                padding: 15px;
+                font-size: 1em;
+            }
+
+            /* Footer cards stack */
+            .card[style*="display: flex"] {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            /* Exception for planet nodes which are small enough */
+            .planet-node {
+                /* keep flex row */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Burning Meteorite Intro -->
+    <div id="intro-overlay">
+        <div class="meteor-container">
+            <div class="meteor-tail"></div>
+        </div>
+        <div class="system-check">
+            BOOTING_ARCTURUS_RECON_OS_v4.5...
+        </div>
+    </div>
+
+    <div class="starfield"></div>
+    <div class="starfield-2"></div>
+
+    <!-- Main Dynamic Desktop Layout -->
+    <div id="main-dashboard">
+        <header>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="arcturus-star"></div>
+                <h1>ARCTURUS</h1>
+                <div
+                    style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); padding: 5px 15px; border-radius: 5px; color: var(--neon-blue); font-family: 'Space Mono'; font-size: 0.7em; letter-spacing: 2px; animation: pulse 2s infinite">
+                    SYSTEM_STATUS: ONLINE
+                </div>
+            </div>
+            <div class="mission-clock">
+                <span style="color: var(--text-dim)">MISSION_TIME:</span> <span id="clock">00:00:00</span><br>
+                <span id="target" style="color: var(--neon-blue)">TARGET: JEZERO_CRATER, MARS</span>
+            </div>
+        </header>
+
+        <!-- LEFT: Global Metrics & Targets -->
+        <div class="panel-left">
+            <!-- High Impact Mission Briefing -->
+            <!-- High Impact Mission Briefing -->
+            <div class="card"
+                style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="metric-title">Mission Briefing</div>
+                    <div style="display: flex; align-items: baseline; gap: 15px; margin-bottom: 20px;">
+                        <div class="big-number">03</div>
+                        <div
+                            style="font-size: 0.8em; color: var(--neon-orange); font-family: 'Orbitron'; letter-spacing: 1px;">
+                            ORGANIC CLASSES DETECTED</div>
+                    </div>
+                    <p style="font-size: 0.9em; line-height: 1.6; color: #fff; margin-bottom: 20px">
+                        <b>Objective:</b> Identify "seeds of life" in space rocks. We scan meteorite spectra to find the
+                        chemical building blocks of existence.
+                    </p>
+
+                    <div style="margin-bottom: 20px;">
+                        <h5
+                            style="color: var(--neon-blue); font-family: 'Orbitron'; font-size: 0.8em; margin-bottom: 8px; letter-spacing: 1px;">
+                            HOW IT WORKS</h5>
+                        <p style="font-size: 0.85em; line-height: 1.6; color: var(--text-dim);">
+                            Every chemical has a unique "fingerprint" made of light. Our AI analyzes these hidden
+                            patterns to identify molecules that are invisible to the naked eye.
+                        </p>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CENTER: Main Analysis & Spectrum -->
+        <div class="panel-center">
+            <div class="analysis-hub">
+                <div class="card" id="analyzer-card"
+                    style="display: flex; flex-direction: column; gap: 15px; height: 100%;">
+                    <div class="metric-title">Infrared Spectrum Classifier</div>
+
+                    <!-- INPUT STATE -->
+                    <div id="input-section">
+                        <div class="upload-portal" id="portal" onclick="document.getElementById('fileIn').click()">
+                            <div style="font-size: 3em; margin-bottom: 10px">🌠</div>
+                            <p id="portal-text">Drop .TAB Sample Into The Stream</p>
+                            <input type="file" id="fileIn" accept=".tab" style="display:none"
+                                onchange="fileSelected(event)">
+                        </div>
+
+                        <button class="decode-btn" id="goBtn" onclick="runAnalysis()" disabled>
+                            Initialize Neural Decode
+                        </button>
+
+                        <div id="logs" style="
+                            font-family: 'Space Mono'; 
+                            font-size: 0.7em; 
+                            color: var(--neon-blue); 
+                            margin-top: 15px; 
+                            height: 60px; 
+                            overflow-y: auto; 
+                            border-top: 1px solid rgba(0, 243, 255, 0.2); 
+                            padding-top: 10px;
+                            opacity: 0.8;">
+                            > SYSTEM_READY...
+                        </div>
+                    </div>
+
+                    <div class="warp-spinner" id="spin"></div>
+
+                    <!-- RESULT STATE (Includes Plot) -->
+                    <div id="result-section" style="display:none; flex: 1; flex-direction: column;">
+                        <div class="hologram-overlay" id="hud-results" style="display:block; margin-bottom: 15px;">
+                            <div style="font-family:'Orbitron'; color: #fff; margin-bottom:10px">IDENTITY DETECTED</div>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline">
+                                <span id="res-family"
+                                    style="font-size: 2em; font-family: 'Orbitron'; color: var(--neon-blue)">UNKNOWN</span>
+                                <span id="res-conf"
+                                    style="color: var(--neon-orange); font-family: 'Space Mono'">0%</span>
+                            </div>
+                            <p
+                                style="font-family: 'Space Mono'; font-size: 0.85em; margin-top: 5px; color: var(--text-dim)">
+                                MAIN CHEMICAL SIGNATURE: <span id="res-peak" style="color: #fff">0 cm⁻¹</span>
+                            </p>
+                        </div>
+
+                        <!-- PLOT AREA -->
+                        <div id="spectrumPlot" style="flex: 1; min-height: 300px; width: 100%;"></div>
+
+                        <button onclick="resetAnalysis()" class="decode-btn"
+                            style="margin-top: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+                            ANALYZE ANOTHER TARGET
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- RIGHT: Family Characterization Only -->
+        <div class="panel-right">
+            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="metric-title">Family Characterization</div>
+                <div id="family-info-container"
+                    style="flex: 1; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; padding-right: 5px;">
+                    <!-- Simplified Classes -->
+                    <div style="margin-bottom: 18px; border-left: 3px solid var(--neon-blue); padding-left: 12px">
+                        <h4 style="color:#fff; font-size: 0.9em; letter-spacing: 1px; margin-bottom: 6px;">CLASS 1: THE
+                            DOMINANT (80%)</h4>
+                        <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
+                            <b>The Standard Framework.</b> Basic carbon-ring molecules found everywhere in space. The
+                            "common bread" of space organics.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 18px; border-left: 3px solid var(--neon-purple); padding-left: 12px">
+                        <h4 style="color:#fff; font-size: 0.9em; letter-spacing: 1px; margin-bottom: 6px;">CLASS 0: THE
+                            VARIANT (17%)</h4>
+                        <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
+                            <b>Life's Ingredients.</b> Special molecules with extra atoms like <b>Oxygen</b> or
+                            <b>Nitrogen</b>. This is the chemistry that leads to life!
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 18px; border-left: 3px solid var(--neon-red); padding-left: 12px">
+                        <h4 style="color:#fff; font-size: 0.9em; letter-spacing: 1px; margin-bottom: 6px;">CLASS 2: THE
+                            EXOTIC (3%)</h4>
+                        <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
+                            <b>The Rare Treasures.</b> Very complex and unusual structures. They don't follow normal
+                            rules and are extremely rare in meteorites.
+                        </p>
+                    </div>
+
+                    <div
+                        style="margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 0.65em; color: var(--text-dim); font-style: italic; line-height: 1.3;">
+                        * All analysis is performed in real-time by a Deep Neural Network trained on the NASA PAHdb
+                        database.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER AREA: Info Cards + Research Targets -->
+        <div id="dashboard-footer" style="grid-area: footer; display: flex; flex-direction: column; gap: 20px;">
+
+            <div id="footer-educational-content" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Info Cards Row -->
+                <div style="display: flex; gap: 20px; align-items: stretch;">
+                    <div class="card"
+                        style="flex: 1; margin: 0; display: flex; align-items: center; gap: 20px; padding: 15px 25px;">
+                        <div style="font-size: 2.2em; filter: drop-shadow(0 0 10px var(--neon-blue))">✨</div>
+                        <div>
+                            <h4
+                                style="color: var(--neon-blue); font-family: 'Orbitron'; font-size: 0.8em; letter-spacing: 1px; margin-bottom: 4px;">
+                                ORGANICS</h4>
+                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">Carbon-based
+                                building
+                                blocks
+                                of life found throughout the cosmos.</p>
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="flex: 1; margin: 0; display: flex; align-items: center; gap: 20px; padding: 15px 25px;">
+                        <div style="font-size: 2.2em; filter: drop-shadow(0 0 10px var(--neon-purple))">🌍</div>
+                        <div>
+                            <h4
+                                style="color: var(--neon-purple); font-family: 'Orbitron'; font-size: 0.8em; letter-spacing: 1px; margin-bottom: 4px;">
+                                COSMIC ORIGIN</h4>
+                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">Formed billions of
+                                years
+                                ago
+                                in deep space, predating planet Earth.</p>
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="flex: 1; margin: 0; display: flex; align-items: center; gap: 20px; padding: 15px 25px;">
+                        <div style="font-size: 2.2em; filter: drop-shadow(0 0 10px var(--neon-red))">🎯</div>
+                        <div>
+                            <h4
+                                style="color: var(--neon-red); font-family: 'Orbitron'; font-size: 0.8em; letter-spacing: 1px; margin-bottom: 4px;">
+                                AI SALIENCY</h4>
+                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">Red peaks show where
+                                the
+                                Neural Net focuses to identify the chemical signature.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research Targets (Moved from Left) -->
+                <!-- Research Targets -->
+                <div class="card">
+                    <div class="metric-title">Research Targets</div>
+                    <div class="planet-grid">
+                        <div class="planet-node">
+                            <div class="planet-sphere mars"></div>
+                            <div class="planet-info">
+                                <h4>MARS // JEZERO</h4>
+                                <p>Prebiotic Organics Check.</p>
+                            </div>
+                        </div>
+                        <div class="planet-node">
+                            <div class="planet-sphere jupiter"></div>
+                            <div class="planet-info">
+                                <h4>JUPITER // GAS GIANT</h4>
+                                <p>Hydrocarbon Chemistry Ref.</p>
+                            </div>
+                        </div>
+                        <div class="planet-node">
+                            <div class="planet-sphere titan"></div>
+                            <div class="planet-info">
+                                <h4>TITAN // PREBIOTIC</h4>
+                                <p>Organic-rich Tholin Zone.</p>
+                            </div>
+                        </div>
+                        <div class="planet-node">
+                            <div class="planet-sphere saturn"></div>
+                            <div class="planet-info">
+                                <h4>SATURN // RINGS</h4>
+                                <p>Mineral Mix Analysis.</p>
+                            </div>
+                        </div>
+                        <div class="planet-node">
+                            <div class="planet-sphere europa"></div>
+                            <div class="planet-info">
+                                <h4>EUROPA // CRYO</h4>
+                                <p>Under-Ice Organic Zone.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CREDITS FOOTER -->
+            <div class="credits-section">
+                <div style="font-family: 'Orbitron'; letter-spacing: 1px; color: #fff;">
+                    Made by Sharon Melhi - Amity University Bengaluru
+                </div>
+                <div style="color: var(--neon-orange); font-size: 0.9em;">
+                    Presented at Indian Institute of Space Science and Technology (IIST)
+                </div>
+                <div class="credits-links">
+                    <a href="https://github.com/Sharon-codes" target="_blank">GitHub</a> •
+                    <a href="https://www.linkedin.com/in/sharon-melhi/" target="_blank">LinkedIn</a> •
+                    <a href="mailto:sharonmelhi365@gmail.com">Email</a>
+                </div>
+            </div>
+        </div>
+    </div> <!-- END MAIN DASHBOARD -->
+
+    <script>
+        const FAMILY_INFO = {
+            'Pure PAH': {
+                color: '#00f3ff',
+                title: "CLASS 1: THE COSMIC ARCHITECT",
+                desc: "You have detected a <b>Pure Polycyclic Aromatic Hydrocarbon</b> (PAH). <br><br>These are the honeycombs of the universe—fused rings of carbon and hydrogen that are incredibly stable. They survive the harshest radiation fields of deep space.",
+                context: "Pure PAHs are the most common organic molecules in the Universe, holding up to 20% of all cosmic carbon. They act as a frequency standard for calibrating space telescopes like JWST.",
+                implication: "Highly Stable // Non-Biological Backbone"
+            },
+            'N-PAH': {
+                color: '#bc13fe',
+                title: "CLASS 0: THE GENETIC PRECURSOR",
+                desc: "<b>CRITICAL DETECTION!</b> This sample contains <b>Nitrogen-substituted PAHs</b> (PANHs).<br><br>Nitrogen in the ring structure is a key step towards forming nucleobases—the letters of the genetic code (DNA/RNA). This sample isn't just organic; it's potentially <i>prebiotic</i>.",
+                context: "PANHs are notoriously difficult to distinguish from pure PAHs. Their detection suggests the presence of heterocycles, which are necessary for the formation of life's information storage molecules.",
+                implication: "Biological Potential // Genetic Code Precursor"
+            },
+            'O-PAH': {
+                color: '#ff6a00',
+                title: "CLASS 0: THE WATER BEARER",
+                desc: "<b>CRITICAL DETECTION!</b> This sample contains <b>Oxygenated PAHs</b>.<br><br>Oxygen changes the game. It allows these molecules to interact with water (hydrophilicity), a prerequisite for life as we know it.",
+                context: "Oxygenation often occurs on the surface of ice grains in molecular clouds. Finding O-PAHs implies this sample may have originated from a water-rich, chemically active environment similar to early Earth.",
+                implication: "Metabolic Potential // Water Soluble"
+            },
+            'Aliphatic': {
+                color: '#ff003c',
+                title: "CLASS 2: THE ANCIENT CHAINS",
+                desc: "<b>Rare Signature Detected.</b> These are <b>Aliphatic Hydrocarbons</b>—flexible, chain-like structures rather than rigid rings.<br><br>They are often found in the most primitive, unaltered meteorites, preserving the original chemistry of the solar system's birth cloud.",
+                context: "Unlike aromatic rings, aliphatic chains are fragile and easily destroyed by UV radiation. Their presence indicates this sample has been well-preserved for billions of years.",
+                implication: "Primitive Origin // Fossilized Chemistry"
+            },
+            'Methyl-PAH': {
+                color: '#00ff9d',
+                title: "CLASS 1: THE BRANCHED VARIANT",
+                desc: "Detected <b>Methylated PAHs</b>. These molecules have extra carbon branches attached to their rings.<br><br>This structure suggests these molecules formed in a protected, cooler environment, shielding them from being stripped bare by radiation.",
+                context: "Methylation is a sign of 'chemical processing'—the molecule is growing and evolving. It bridges the gap between simple gas-phase molecules and complex dust grains.",
+                implication: "Shielded Environment // Complex Growth"
+            }
+        };
+
+        let defaultInfoHTML = "";
+
+        // Intro Sequence
+        window.addEventListener('load', () => {
+            defaultInfoHTML = document.getElementById('family-info-container').innerHTML;
+
+            setTimeout(() => {
+                const overlay = document.getElementById('intro-overlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    const main = document.getElementById('main-dashboard');
+                    main.style.display = 'grid';
+                    document.body.style.overflowY = 'auto'; // UNLOCK SCROLLING
+                    loadInitial();
+                }, 1500);
+            }, 3000);
+        });
+
+        function loadInitial() {
+            // Clock
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock').textContent = now.toUTCString().split(' ')[4];
+            }, 1000);
+
+            // Fetch Stats
+            fetchStats();
+        }
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                if (document.getElementById('distroChart')) {
+                    renderDistro(data.clusters);
+                }
+            } catch (e) {
+                console.log("Stats fetch failed", e);
+            }
+        }
+
+        function renderDistro(clusters) {
+            const ctx = document.getElementById('distroChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Variant', 'Dominant', 'Exotic'],
+                    datasets: [{
+                        data: [clusters[0], clusters[1], clusters[2]],
+                        backgroundColor: ['rgba(188, 19, 254, 0.6)', 'rgba(0, 243, 255, 0.6)', 'rgba(255, 0, 60, 0.6)'],
+                        borderColor: ['#bc13fe', '#00f3ff', '#ff003c'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        let cargo = null;
+
+        function fileSelected(e) {
+            cargo = e.target.files[0];
+            if (cargo) {
+                document.getElementById('goBtn').disabled = false;
+                document.getElementById('portal-text').innerHTML = `<span style="color:var(--neon-blue)">CARGO_LOCKED:</span> ${cargo.name}`;
+                log(`> Cargo locked: ${cargo.name}`);
+            }
+        }
+
+        async function runAnalysis() {
+            if (!cargo) return;
+
+            const spin = document.getElementById('spin');
+            const btn = document.getElementById('goBtn');
+            const inputSec = document.getElementById('input-section');
+            const resultSec = document.getElementById('result-section');
+
+            btn.disabled = true;
+            btn.textContent = "DECODING NEURAL FEED...";
+            spin.style.display = 'block';
+            log("> Initializing Quantum Decryption...");
+
+            const fd = new FormData();
+            fd.append('file', cargo);
+
+            try {
+                const res = await fetch('/api/predict', { method: 'POST', body: fd });
+                const data = await res.json();
+
+                if (res.ok) {
+                    spin.style.display = 'none';
+                    // Switch Views
+                    inputSec.style.display = 'none';
+                    resultSec.style.display = 'flex';
+
+                    document.getElementById('res-family').textContent = data.predicted_family;
+                    document.getElementById('res-conf').textContent = (data.confidence * 100).toFixed(1) + '%';
+                    document.getElementById('res-peak').textContent = data.top_peak_wavenumber.toFixed(1) + ' cm⁻¹';
+
+                    document.getElementById('analyzer-card').style.borderColor = data.predicted_family.includes('O-PAH') ? 'var(--neon-orange)' : 'var(--neon-blue)';
+
+                    log(`> Analysis Complete: ${data.predicted_family} detected with ${document.getElementById('res-conf').textContent} confidence.`);
+
+                    updateFamilyPanel(data.predicted_family);
+
+                    // TRIGGER EXPANDED MODE
+                    document.getElementById('main-dashboard').classList.add('analysis-mode');
+
+                    // Small timeout to ensure container is rendered before plotting
+                    setTimeout(() => renderSpectrum(data.spectrum), 300); // Increased timeout slightly for transition
+                }
+            } catch (e) {
+                log("!! DECODING ABORTED !!");
+                spin.style.display = 'none';
+                btn.disabled = false;
+                btn.textContent = "Initialize Neural Decode";
+            }
+        }
+
+        function resetAnalysis() {
+            cargo = null;
+            document.getElementById('input-section').style.display = 'block';
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('goBtn').disabled = true;
+            document.getElementById('goBtn').textContent = "Initialize Neural Decode";
+            document.getElementById('portal-text').textContent = "Drop .TAB Sample Into The Stream";
+            document.getElementById('analyzer-card').style.borderColor = 'var(--border)';
+
+            // Restore Family Panel
+            document.getElementById('family-info-container').innerHTML = defaultInfoHTML;
+
+            // EXIT EXPANDED MODE
+            document.getElementById('main-dashboard').classList.remove('analysis-mode');
+
+            log("> System Reset. Ready for next sample.");
+        }
+
+        function updateFamilyPanel(familyName) {
+            const container = document.getElementById('family-info-container');
+            // Default to Pure PAH if unknown, or do a partial match search
+            let key = Object.keys(FAMILY_INFO).find(k => familyName.includes(k)) || 'Pure PAH';
+            const info = FAMILY_INFO[key];
+
+            container.innerHTML = `
+                <div style="animation: fadeIn 0.5s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="border-left: 4px solid ${info.color}; padding-left: 15px; margin-bottom: 25px;">
+                            <h2 style="font-family: 'Orbitron'; font-size: 1.4em; color: ${info.color}; margin-bottom: 10px; line-height: 1.2;">
+                                ${info.title}
+                            </h2>
+                            <div style="font-family: 'Space Mono'; font-size: 0.75em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;">
+                                ${info.implication}
+                            </div>
+                        </div>
+
+                        <p style="font-size: 1.0em; line-height: 1.6; color: #fff; margin-bottom: 25px;">
+                            ${info.desc}
+                        </p>
+
+                        <div style="margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                            <h5 style="color: var(--neon-blue); font-family: 'Orbitron'; font-size: 0.85em; margin-bottom: 8px;">COSMIC CONTEXT</h5>
+                            <p style="font-size: 0.9em; line-height: 1.6; color: var(--text-dim);">
+                                ${info.context}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-top: auto;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                            <div style="font-family: 'Orbitron'; font-size: 0.8em; color: var(--neon-blue);">
+                                ASTROBIOLOGICAL SCORE
+                            </div>
+                            <div style="font-size: 0.7em; color: var(--text-dim);">
+                                (0=INERT, 100=LIFE-READY)
+                            </div>
+                        </div>
+
+                        <p style="font-size: 0.75em; margin-bottom: 10px; color: #aaa;">
+                            This score indicates how capable this molecule is of supporting the complex chemistry required for life.
+                        </p>
+
+                        <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                            <div style="height: 100%; width: ${familyName.includes('N-') || familyName.includes('O-') ? '95%' : '40%'}; background: ${info.color}; box-shadow: 0 0 10px ${info.color};"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSpectrum(spec) {
+            const t1 = {
+                x: spec.x, y: spec.y,
+                mode: 'lines', name: 'Raw Radiation',
+                line: { color: '#00f3ff', width: 2, shape: 'spline' },
+                fill: 'tozeroy', fillcolor: 'rgba(0, 243, 255, 0.05)'
+            };
+            const t2 = {
+                x: spec.x, y: spec.saliency,
+                mode: 'lines', name: 'Neural Focus',
+                yaxis: 'y2',
+                line: { color: '#ff003c', width: 1.5, dash: 'dot' }
+            };
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#00f3ff', family: 'Space Mono', size: 10 },
+                xaxis: { title: 'Wavenumber (cm⁻¹)', gridcolor: 'rgba(255,255,255,0.05)' },
+                yaxis: { title: 'Intensity', gridcolor: 'rgba(255,255,255,0.05)' },
+                yaxis2: { overlaying: 'y', side: 'right', showgrid: false },
+                margin: { t: 20, b: 40, l: 50, r: 50 },
+                showlegend: true,
+                legend: { x: 0, y: 1.1, orientation: 'h' }
+            };
+
+            Plotly.newPlot('spectrumPlot', [t1, t2], layout, { displayModeBar: false });
+        }
+
+        function log(msg) {
+            console.log(msg);
+            const l = document.getElementById('logs');
+            if (l) {
+                l.innerHTML = `> ${msg} <br>${l.innerHTML}`;
+            }
+        }
+    </script>
+</body>
+
+</html>
