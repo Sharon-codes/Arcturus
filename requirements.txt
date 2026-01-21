@@ -1,13 +1,9 @@
 flask
 flask-cors
-torch
 numpy
 pandas
 scipy
 scikit-learn
 plotly
-matplotlib
-seaborn
-fastapi
-streamlit
-uvicorn
+gunicorn
+torch --extra-index-url https://download.pytorch.org/whl/cpu
