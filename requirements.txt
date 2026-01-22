@@ -8,4 +8,5 @@ plotly
 gunicorn
 tqdm
 matplotlib
+psutil
 torch --extra-index-url https://download.pytorch.org/whl/cpu
