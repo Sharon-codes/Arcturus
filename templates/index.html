@@ -217,27 +217,33 @@
         }
 
         /* CHANDRA BRANDING */
-        /* Red Moon Icon */
+        /* Red Moon Icon with Craters */
         .chandra-moon {
-            width: 12px;
-            height: 12px;
-            background: #ff4500;
+            width: 28px;
+            height: 28px;
+            background-color: #ff4500;
             border-radius: 50%;
-            box-shadow: inset -3px -3px 0 0 rgba(0, 0, 0, 0.3), 0 0 15px #ff4500;
+            /* Crater Texture */
+            background-image:
+                radial-gradient(circle at 35% 25%, rgba(0, 0, 0, 0.3) 12%, transparent 15%),
+                radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.3) 18%, transparent 22%),
+                radial-gradient(circle at 30% 75%, rgba(0, 0, 0, 0.3) 8%, transparent 12%);
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5), 0 0 20px #ff4500;
             display: inline-block;
             animation: moonPulse 4s infinite ease-in-out;
             position: relative;
+            flex-shrink: 0;
         }
 
         @keyframes moonPulse {
 
             0%,
             100% {
-                box-shadow: inset -3px -3px 0 0 rgba(0, 0, 0, 0.3), 0 0 10px #ff4500;
+                box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5), 0 0 15px #ff4500;
             }
 
             50% {
-                box-shadow: inset -3px -3px 0 0 rgba(0, 0, 0, 0.3), 0 0 25px #ff6a00;
+                box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5), 0 0 30px #ff6a00;
             }
         }
 
