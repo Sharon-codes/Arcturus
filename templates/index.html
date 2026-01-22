@@ -744,6 +744,52 @@
                         <!-- PLOT AREA -->
                         <div id="spectrumPlot" style="flex: 1; min-height: 300px; width: 100%;"></div>
 
+                        <!-- AI EXPLANATION CARDS -->
+                        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+                            <h5
+                                style="color: var(--neon-blue); font-family: 'Orbitron'; font-size: 0.9em; margin-bottom: 15px; text-align: center; letter-spacing: 2px;">
+                                NEURAL LOGIC DECODED</h5>
+
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                                <!-- Step 1 -->
+                                <div
+                                    style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <div
+                                        style="color: var(--neon-blue); font-family: 'Orbitron'; font-size: 0.8em; margin-bottom: 8px;">
+                                        01. INPUT SCAN</div>
+                                    <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
+                                        The raw infrared light (Blue Line) is sliced into <b>2,048 data points</b>. Each
+                                        point represents how much light the rock absorbed at that specific frequency.
+                                    </p>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div
+                                    style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <div
+                                        style="color: var(--neon-purple); font-family: 'Orbitron'; font-size: 0.8em; margin-bottom: 8px;">
+                                        02. NEURAL FOCUS</div>
+                                    <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
+                                        The AI (Red Line) scans for "Signal vs. Noise". It calculates saliency
+                                        (importance) to find hidden patterns that human eyes might miss.
+                                    </p>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div
+                                    style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <div
+                                        style="color: var(--neon-orange); font-family: 'Orbitron'; font-size: 0.8em; margin-bottom: 8px;">
+                                        03. DECISION</div>
+                                    <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
+                                        The <b>White Dots</b> mark the final "Evidence". If a dot aligns with a known
+                                        chemical key (e.g., C-H Stretch), the AI locks in the family classification.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <button onclick="resetAnalysis()" class="decode-btn"
                             style="margin-top: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
                             ANALYZE ANOTHER TARGET
