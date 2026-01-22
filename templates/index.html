@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcturus | Meteorite Organic Discovery</title>
+    <title>Chandra | Meteorite Organic Discovery</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <link
@@ -216,34 +216,28 @@
             }
         }
 
-        /* ARCTURUS BRANDING */
-        .arcturus-star {
-            width: 8px;
-            height: 8px;
+        /* CHANDRA BRANDING */
+        /* Red Moon Icon */
+        .chandra-moon {
+            width: 12px;
+            height: 12px;
             background: #ff4500;
             border-radius: 50%;
-            box-shadow: 0 0 10px #ff4500, 0 0 25px #ff6a00;
+            box-shadow: inset -3px -3px 0 0 rgba(0, 0, 0, 0.3), 0 0 15px #ff4500;
             display: inline-block;
-            animation: pulsar 3s infinite;
+            animation: moonPulse 4s infinite ease-in-out;
+            position: relative;
         }
 
-        @keyframes pulsar {
-            0% {
-                opacity: 0.7;
-                transform: scale(1);
-                box-shadow: 0 0 10px #ff4500;
+        @keyframes moonPulse {
+
+            0%,
+            100% {
+                box-shadow: inset -3px -3px 0 0 rgba(0, 0, 0, 0.3), 0 0 10px #ff4500;
             }
 
             50% {
-                opacity: 1;
-                transform: scale(1.4);
-                box-shadow: 0 0 25px #ff4500, 0 0 40px #ff6a00;
-            }
-
-            100% {
-                opacity: 0.7;
-                transform: scale(1);
-                box-shadow: 0 0 10px #ff4500;
+                box-shadow: inset -3px -3px 0 0 rgba(0, 0, 0, 0.3), 0 0 25px #ff6a00;
             }
         }
 
@@ -625,7 +619,7 @@
             <div class="meteor-tail"></div>
         </div>
         <div class="system-check">
-            BOOTING_ARCTURUS_RECON_OS_v4.5...
+            BOOTING_CHANDRA_RECON_OS_v4.5...
         </div>
     </div>
 
@@ -636,8 +630,8 @@
     <div id="main-dashboard">
         <header>
             <div style="display: flex; align-items: center; gap: 20px;">
-                <div class="arcturus-star"></div>
-                <h1>ARCTURUS</h1>
+                <div class="chandra-moon"></div>
+                <h1>CHANDRA</h1>
                 <div
                     style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); padding: 5px 15px; border-radius: 5px; color: var(--neon-blue); font-family: 'Space Mono'; font-size: 0.7em; letter-spacing: 2px; animation: pulse 2s infinite">
                     SYSTEM_STATUS: ONLINE
