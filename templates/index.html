@@ -771,8 +771,7 @@
                                         style="color: var(--neon-purple); font-family: 'Orbitron'; font-size: 0.8em; margin-bottom: 8px;">
                                         02. NEURAL FOCUS</div>
                                     <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
-                                        The AI (Red Line) scans for "Signal vs. Noise". It calculates saliency
-                                        (importance) to find hidden patterns that human eyes might miss.
+                                        The AI analyzes your spectrum like a detective examining evidence. The red line shows "attention hotspots" - where the AI focused most to make its chemical identification.
                                     </p>
                                 </div>
 
@@ -886,10 +885,8 @@
                         <div>
                             <h4
                                 style="color: var(--neon-red); font-family: 'Orbitron'; font-size: 0.8em; letter-spacing: 1px; margin-bottom: 4px;">
-                                AI SALIENCY</h4>
-                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">Red peaks show where
-                                the
-                                Neural Net focuses to identify the chemical signature.</p>
+                                AI DECISION SIGNALS</h4>
+                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">The red line shows which parts of the spectrum the AI considered most important for identifying the chemical type. Higher peaks = stronger evidence.</p>
                         </div>
                     </div>
                 </div>
@@ -1208,17 +1205,34 @@
         }
 
         function renderSpectrum(spec) {
+            // Normalize saliency for better visualization (0-1 scale)
+            const maxSaliency = Math.max(...spec.saliency);
+            const normalizedSaliency = spec.saliency.map(s => s / maxSaliency);
+
             const t1 = {
                 x: spec.x, y: spec.y,
-                mode: 'lines', name: 'Raw Radiation',
+                mode: 'lines', name: 'Your Spectrum',
                 line: { color: '#00f3ff', width: 2, shape: 'spline' },
                 fill: 'tozeroy', fillcolor: 'rgba(0, 243, 255, 0.05)'
             };
+
+            // Create saliency as a colored background fill
             const t2 = {
+                x: spec.x.concat(spec.x.slice().reverse()),
+                y: Array(spec.saliency.length).fill(0).concat(spec.saliency.map(s => s * Math.max(...spec.y) * 0.3)),
+                fill: 'toself',
+                fillcolor: 'rgba(255, 0, 60, 0.2)',
+                line: { width: 0 },
+                name: 'AI Attention Areas',
+                showlegend: true
+            };
+
+            const t3 = {
                 x: spec.x, y: spec.saliency,
-                mode: 'lines', name: 'Neural Focus',
+                mode: 'lines', name: 'AI Decision Strength',
                 yaxis: 'y2',
-                line: { color: '#ff003c', width: 1.5, dash: 'dot' }
+                line: { color: '#ff003c', width: 1.5, dash: 'dot' },
+                hovertemplate: 'Wavenumber: %{x:.1f} cm⁻¹<br>AI Weight: %{y:.3f}<extra></extra>'
             };
 
             // Calculate Critical Matches (where Neural Focus is High)
@@ -1246,13 +1260,13 @@
                     else if (wn > 1500 && wn <= 2000) reasoning = "C=C / C=O (Double Bonds/Aromatic)";
                     else if (wn <= 1500) reasoning = "FINGERPRINT REGION (Complex Ring Modes)";
 
-                    hoverTexts.push(`AI DECISION POINT<br>Wavenumber: ${wn.toFixed(1)} cm⁻¹<br>Significance: ${reasoning}<br>The AI weighted this feature heavily.`);
+                    hoverTexts.push(`🔍 AI FOCUS POINT<br>Wavenumber: ${wn.toFixed(1)} cm⁻¹<br>What it means: ${reasoning}<br>Why important: The AI used this spectral feature heavily in its decision.`);
                 }
             }
 
-            const t3 = {
+            const t4 = {
                 x: matchX, y: matchY,
-                mode: 'markers', name: 'Strategic Matches',
+                mode: 'markers', name: 'Key AI Focus Points',
                 yaxis: 'y2', // Match the red axis
                 marker: {
                     color: '#fff',
@@ -1268,15 +1282,30 @@
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 font: { color: '#00f3ff', family: 'Space Mono', size: 10 },
-                xaxis: { title: 'Wavenumber (cm⁻¹)', gridcolor: 'rgba(255,255,255,0.05)' },
-                yaxis: { title: 'Intensity', gridcolor: 'rgba(255,255,255,0.05)' },
-                yaxis2: { overlaying: 'y', side: 'right', showgrid: false },
+                xaxis: { title: 'Wavenumber (cm⁻¹) - Higher = Smaller molecules', gridcolor: 'rgba(255,255,255,0.05)' },
+                yaxis: { title: 'Light Intensity', gridcolor: 'rgba(255,255,255,0.05)' },
+                yaxis2: {
+                    title: 'AI Attention Level',
+                    overlaying: 'y',
+                    side: 'right',
+                    showgrid: false,
+                    range: [0, Math.max(...spec.saliency) * 1.1]
+                },
                 margin: { t: 20, b: 40, l: 50, r: 50 },
                 showlegend: true,
-                legend: { x: 0, y: 1.1, orientation: 'h' }
+                legend: { x: 0, y: 1.1, orientation: 'h' },
+                annotations: [{
+                    x: 0.5,
+                    y: 1.15,
+                    xref: 'paper',
+                    yref: 'paper',
+                    text: '🔍 Pink areas show where AI looked most closely to make its decision',
+                    showarrow: false,
+                    font: { size: 12, color: '#ff6a00' }
+                }]
             };
 
-            Plotly.newPlot('spectrumPlot', [t1, t2, t3], layout, { displayModeBar: false });
+            Plotly.newPlot('spectrumPlot', [t1, t2, t3, t4], layout, { displayModeBar: false });
         }
 
         function log(msg) {

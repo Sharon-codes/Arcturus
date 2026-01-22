@@ -143,6 +143,11 @@ def predict_spectrum():
             top_peak_idx = np.argmax(saliency)
             top_peak_wavenumber = common_x[top_peak_idx]
             
+            # Create wavenumber array for frontend
+            wavenumbers = common_x.tolist()[::10]
+            saliency_downsampled = saliency.tolist()[::10]
+            spectrum_y_downsampled = y_interp.tolist()[::10]
+            
             result = {
                 'filename': file.filename,
                 'predicted_family': family_name,
@@ -150,9 +155,18 @@ def predict_spectrum():
                 'confidence': float(confidence),
                 'top_peak_wavenumber': float(top_peak_wavenumber),
                 'spectrum': {
-                    'x': common_x.tolist()[::10],  # Subsample for transfer
-                    'y': y_interp.tolist()[::10],
-                    'saliency': saliency.tolist()[::10]
+                    'x': wavenumbers,
+                    'y': spectrum_y_downsampled,
+                    'saliency': saliency_downsampled
+                },
+                'explanation': {
+                    'what_is_saliency': 'Shows which parts of your spectrum the AI considered most important for its decision',
+                    'confidence_interpretation': f'{confidence:.1%} confident - higher means more reliable',
+                    'family_meaning': FAMILIES[family_id] + ' - ' + {
+                        0: 'Simple aromatic carbon structures',
+                        1: 'Contains nitrogen - potential DNA/RNA building blocks', 
+                        2: 'Contains oxygen - may show oxidation or complex chemistry'
+                    }.get(family_id, 'Complex organic chemistry')
                 }
             }
             

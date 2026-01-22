@@ -34,22 +34,99 @@ if uploaded_file is not None:
                     col1, col2 = st.columns([2, 1])
                     
                     with col1:
-                        st.subheader("Spectral Analysis & Explainability")
-                        # Plot spectrum and saliency map
-                        saliency = np.array(result['saliency_map'])
-                        # Here we need a common x-axis, assuming 2048 points from 500-4000
-                        x_axis = np.linspace(500, 4000, 2048)
+                        st.subheader("🔍 AI Decision Analysis")
                         
-                        fig = go.Figure()
-                        # Add saliency as background heatmap-like line
-                        fig.add_trace(go.Scatter(x=x_axis, y=saliency, name="Saliency (Peakin Contribution)", 
-                                                 fill='tozeroy', marker_color='rgba(255, 165, 0, 0.4)'))
+                        # Create tabs for different views
+                        tab1, tab2 = st.tabs(["📊 Spectrum + AI Focus", "🎯 Key Insights"])
                         
-                        fig.update_layout(title="Peak Attribution (Saliency Map)", 
-                                          xaxis_title="Wavenumber (cm-1)", yaxis_title="Contribution")
-                        st.plotly_chart(fig, use_container_width=True)
+                        with tab1:
+                            # Plot spectrum and saliency map
+                            saliency = np.array(result['saliency_map'])
+                            x_axis = np.linspace(500, 4000, len(saliency))
+                            
+                            fig = go.Figure()
+                            
+                            # Add spectrum
+                            fig.add_trace(go.Scatter(
+                                x=x_axis, y=np.array(result['spectrum_y']),
+                                name="Your Spectrum", 
+                                line=dict(color='#00f3ff', width=2),
+                                fill='tozeroy', 
+                                fillcolor='rgba(0, 243, 255, 0.1)'
+                            ))
+                            
+                            # Add saliency as background highlighting
+                            max_intensity = np.max(result['spectrum_y'])
+                            saliency_scaled = saliency * max_intensity * 0.3
+                            fig.add_trace(go.Scatter(
+                                x=x_axis, 
+                                y=saliency_scaled,
+                                name="AI Attention Areas",
+                                fill='tozeroy',
+                                fillcolor='rgba(255, 0, 60, 0.3)',
+                                line=dict(width=0),
+                                hovertemplate='Wavenumber: %{x:.1f} cm⁻¹<br>AI Attention: %{customdata:.3f}<extra></extra>',
+                                customdata=saliency
+                            ))
+                            
+                            # Add saliency line
+                            fig.add_trace(go.Scatter(
+                                x=x_axis, y=saliency,
+                                name="AI Decision Strength", 
+                                yaxis="y2",
+                                line=dict(color='#ff003c', width=1.5, dash='dot')
+                            ))
+                            
+                            fig.update_layout(
+                                title="Your Spectrum with AI Analysis",
+                                xaxis_title="Wavenumber (cm⁻¹) - Higher numbers = smaller molecular vibrations",
+                                yaxis_title="Light Intensity",
+                                yaxis2=dict(
+                                    title="AI Attention Level",
+                                    overlaying="y",
+                                    side="right",
+                                    showgrid=False
+                                ),
+                                annotations=[dict(
+                                    x=0.5, y=1.1, xref="paper", yref="paper",
+                                    text="🔍 Pink areas show where the AI looked most closely",
+                                    showarrow=False, font=dict(size=12, color='#ff6a00')
+                                )]
+                            )
+                            st.plotly_chart(fig, use_container_width=True)
                         
-                        st.info(f"**Top Contributing Peaks:** {', '.join([f'{p:.1f} cm⁻¹' for p in result['top_peaks_cm1']])}")
+                        with tab2:
+                            st.markdown("### 🎯 What the AI Found Important")
+                            
+                            # Find top peaks
+                            top_indices = np.argsort(saliency)[-5:][::-1]  # Top 5 peaks
+                            
+                            for i, idx in enumerate(top_indices):
+                                wn = x_axis[idx]
+                                importance = saliency[idx]
+                                
+                                # Determine region
+                                if wn > 3000:
+                                    region = "🔬 C-H Stretch (Carbon-Hydrogen bonds)"
+                                    meaning = "Shows the basic carbon framework of organic molecules"
+                                elif wn > 2000:
+                                    region = "🧬 Triple Bonds (C≡N or C≡C)"
+                                    meaning = "Indicates nitriles or alkynes - potential prebiotic chemistry"
+                                elif wn > 1500:
+                                    region = "🌟 Double Bonds & Aromatics"
+                                    meaning = "Shows aromatic rings or carbonyl groups"
+                                else:
+                                    region = "🔍 Complex Fingerprints"
+                                    meaning = "Unique patterns from complex molecular structures"
+                                
+                                st.markdown(f"""
+                                **#{i+1} Key Feature** (Attention: {importance:.3f})
+                                - **Location**: {wn:.1f} cm⁻¹
+                                - **Region**: {region}
+                                - **Significance**: {meaning}
+                                """)
+                            
+                            st.info(f"💡 **Overall**: The AI is {result['confidence']:.1%} confident this is **{result['prediction']}** based on these spectral patterns.")
                     
                     with col2:
                         st.subheader("Chemical Prediction")
@@ -71,14 +148,30 @@ if uploaded_file is not None:
                 st.error(f"Could not connect to API: {e}. Please ensure the FastAPI backend is running.")
 
 else:
-    st.info("Please upload a spectral file to begin the analysis.")
+    st.info("👆 Please upload a spectral file (.tab, .csv, .txt) to begin the analysis.")
     
     st.markdown("""
-    #### Supported Families
-    - **Pure PAH:** Polycyclic Aromatic Hydrocarbons (C, H only)
-    - **N-PAH:** Nitrogen-containing PAH
-    - **O-PAH:** Oxygen-containing PAH
-    - **Complex Organic:** Hetero-atomic or complex prebiotic structures
+    ## 🤔 How Does the AI Analysis Work?
+    
+    When you upload a spectrum, our AI:
+    
+    1. **Reads your data** - Infrared light measurements showing how molecules vibrate
+    2. **Compares patterns** - Matches against thousands of known organic compounds  
+    3. **Shows its reasoning** - Highlights which parts of your spectrum were most important
+    4. **Makes a prediction** - Classifies the chemical family with confidence score
+    
+    ### 📊 Understanding the Results
+    
+    - **Blue line**: Your original spectrum (light intensity vs. molecular vibration frequency)
+    - **Pink areas**: Where the AI paid closest attention - these "hotspots" drove the decision
+    - **Red dots**: Key decision points with explanations of what they represent
+    - **Confidence score**: How sure the AI is (higher = more reliable)
+    
+    ### 🔬 Chemical Families
+    
+    - **Pure PAH**: Simple aromatic hydrocarbons (like graphite-like structures)
+    - **N-PAH**: Contains nitrogen - potential building blocks for DNA/RNA
+    - **O-PAH**: Contains oxygen - may indicate oxidation or complex organics
     """)
 
 with st.expander("About the Science"):

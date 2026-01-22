@@ -3,7 +3,7 @@ services:
     name: arcturus-recon
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn webapp:app
+    startCommand: gunicorn webapp:app --timeout 120 --workers 1 --threads 8
     plan: free
     envVars:
       - key: PYTHON_VERSION

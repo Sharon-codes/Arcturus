@@ -11,8 +11,35 @@ The core of Arcturus is a Deep Neural Network trained on the **NASA Ames PAHdb**
   - **Pure PAHs**: The inert carbon backbone.
   - **N-PAHs / O-PAHs**: Nitrogen and Oxygen-substituted variants (Prebiotic precursors).
   - **Aliphatics**: Primitive, chain-like hydrocarbons.
-- **Saliency Mapping**: Uses "AI Saliency" to highlight exactly *where* in the spectrum the neural network is looking, providing interpretability for the classification.
+- **AI Saliency Maps**: Shows exactly which parts of your spectrum influenced the AI's decision most
 - **Hybrid Embeddings**: Maps spectra into a latent space to find clusters of chemistries, bridging the gap between known laboratory samples and unknown astronomical observations.
+
+## 🤔 Understanding AI Saliency Maps
+
+When you upload a spectrum, the AI doesn't just give a yes/no answer - it shows its "thought process" through **saliency maps**:
+
+### What Are Saliency Maps?
+- **Visual explanation** of what the AI considered important in your spectrum
+- **Pink/red highlighted areas** show where the AI focused most
+- **Higher peaks = stronger evidence** used in the classification
+
+### How to Read Them
+1. **Blue line**: Your original spectrum (light intensity vs. molecular vibration)
+2. **Pink background**: AI attention areas - where the AI looked closely
+3. **Red markers**: Key decision points with explanations
+4. **Confidence score**: How sure the AI is (85%+ is very reliable)
+
+### What Do Different Regions Mean?
+- **3000+ cm⁻¹**: C-H bonds (basic organic structure)
+- **2000-2300 cm⁻¹**: Triple bonds (C≡N, C≡C) - potential prebiotic chemistry
+- **1500-2000 cm⁻¹**: Double bonds & aromatics (ring structures)
+- **<1500 cm⁻¹**: Complex fingerprints (unique molecular signatures)
+
+### Example Interpretation
+If the AI highlights peaks around 2200 cm⁻¹ and classifies as "N-PAH" with 92% confidence, it means:
+- The AI found strong evidence of nitrile groups (C≡N)
+- This suggests nitrogen-containing organic compounds
+- High confidence means this pattern matches known laboratory samples well
 
 ## 🚀 Application Stack
 
