@@ -728,8 +728,12 @@
                             <div style="display: flex; justify-content: space-between; align-items: baseline">
                                 <span id="res-family"
                                     style="font-size: 2em; font-family: 'Orbitron'; color: var(--neon-blue)">UNKNOWN</span>
-                                <span id="res-conf"
-                                    style="color: var(--neon-orange); font-family: 'Space Mono'">0%</span>
+                                <div style="text-align: right">
+                                    <div style="font-size: 0.6em; color: var(--text-dim); letter-spacing: 1px">
+                                        CONFIDENCE</div>
+                                    <span id="res-conf"
+                                        style="color: var(--neon-orange); font-family: 'Space Mono'">0%</span>
+                                </div>
                             </div>
                             <p
                                 style="font-family: 'Space Mono'; font-size: 0.85em; margin-top: 5px; color: var(--text-dim)">
@@ -1152,6 +1156,49 @@
                 line: { color: '#ff003c', width: 1.5, dash: 'dot' }
             };
 
+            // Calculate Critical Matches (where Neural Focus is High)
+            // Identify peaks in saliency to place "Decision Points"
+            const matchX = [];
+            const matchY = [];
+            const hoverTexts = [];
+
+            // Simple peak detection on saliency
+            for (let i = 1; i < spec.saliency.length - 1; i++) {
+                if (spec.saliency[i] > 0.1 &&
+                    spec.saliency[i] > spec.saliency[i - 1] &&
+                    spec.saliency[i] > spec.saliency[i + 1]) {
+
+                    matchX.push(spec.x[i]);
+                    // Place marker on the Saliency line (Red) so it's clear it refers to AI focus
+                    matchY.push(spec.saliency[i]);
+
+                    // Generate Explanation
+                    let wn = spec.x[i];
+                    let reasoning = "Unknown Region";
+
+                    if (wn > 3000) reasoning = "C-H STRETCH (Organic Backbone)";
+                    else if (wn > 2000 && wn <= 2300) reasoning = "C≡N / C≡C (Nitriles/Alkynes)";
+                    else if (wn > 1500 && wn <= 2000) reasoning = "C=C / C=O (Double Bonds/Aromatic)";
+                    else if (wn <= 1500) reasoning = "FINGERPRINT REGION (Complex Ring Modes)";
+
+                    hoverTexts.push(`AI DECISION POINT<br>Wavenumber: ${wn.toFixed(1)} cm⁻¹<br>Significance: ${reasoning}<br>The AI weighted this feature heavily.`);
+                }
+            }
+
+            const t3 = {
+                x: matchX, y: matchY,
+                mode: 'markers', name: 'Strategic Matches',
+                yaxis: 'y2', // Match the red axis
+                marker: {
+                    color: '#fff',
+                    size: 8,
+                    symbol: 'circle',
+                    line: { color: '#ff003c', width: 2 }
+                },
+                hovertemplate: '%{text}<extra></extra>',
+                text: hoverTexts
+            };
+
             const layout = {
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
@@ -1164,7 +1211,7 @@
                 legend: { x: 0, y: 1.1, orientation: 'h' }
             };
 
-            Plotly.newPlot('spectrumPlot', [t1, t2], layout, { displayModeBar: false });
+            Plotly.newPlot('spectrumPlot', [t1, t2, t3], layout, { displayModeBar: false });
         }
 
         function log(msg) {
