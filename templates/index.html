@@ -1094,15 +1094,34 @@
                     inputSec.style.display = 'none';
                     resultSec.style.display = 'flex';
 
-                    document.getElementById('res-family').textContent = data.predicted_family;
-                    document.getElementById('res-conf').textContent = (data.confidence * 100).toFixed(1) + '%';
-                    document.getElementById('res-peak').textContent = data.top_peak_wavenumber.toFixed(1) + ' cm⁻¹';
+                    if (data.confidence < 0.5) {
+                        // LOW CONFIDENCE - TRIGGER MANUAL ALERT
+                        document.getElementById('res-family').textContent = "UNIDENTIFIED SIGNAL";
+                        document.getElementById('res-family').style.color = "var(--neon-red)";
+                        document.getElementById('res-conf').textContent = (data.confidence * 100).toFixed(1) + '%';
+                        document.getElementById('res-peak').innerHTML = "<span style='color:var(--neon-red)'>⚠ MANUAL INSPECTION REQUIRED</span>";
+                        document.getElementById('analyzer-card').style.borderColor = 'var(--neon-red)';
 
-                    document.getElementById('analyzer-card').style.borderColor = data.predicted_family.includes('O-PAH') ? 'var(--neon-orange)' : 'var(--neon-blue)';
+                        // Force update info panel to alert
+                        document.getElementById('family-info-container').innerHTML = `
+                            <div style="border-left: 4px solid var(--neon-red); padding-left: 15px;">
+                                <h2 style="font-family: 'Orbitron'; color: var(--neon-red);">ANOMALY DETECTED</h2>
+                                <p style="color:#fff; margin-top:10px;">The neural confidence is too low (< 50%). This signature does not match any known organic family in the PAHdb library.</p>
+                                <p style="color:var(--text-dim); margin-top:10px;"><b>RECOMMENDATION:</b> Flag for manual mass-spectrometry analysis. Potential novel chemistry or high-noise sample.</p>
+                            </div>
+                        `;
+                    } else {
+                        // NORMAL DETECTION
+                        document.getElementById('res-family').textContent = data.predicted_family;
+                        document.getElementById('res-family').style.color = "var(--neon-blue)";
+                        document.getElementById('res-conf').textContent = (data.confidence * 100).toFixed(1) + '%';
+                        document.getElementById('res-peak').textContent = data.top_peak_wavenumber.toFixed(1) + ' cm⁻¹';
+                        document.getElementById('analyzer-card').style.borderColor = data.predicted_family.includes('O-PAH') ? 'var(--neon-orange)' : 'var(--neon-blue)';
+
+                        updateFamilyPanel(data.predicted_family);
+                    }
 
                     log(`> Analysis Complete: ${data.predicted_family} detected with ${document.getElementById('res-conf').textContent} confidence.`);
-
-                    updateFamilyPanel(data.predicted_family);
 
                     // TRIGGER EXPANDED MODE
                     document.getElementById('main-dashboard').classList.add('analysis-mode');
