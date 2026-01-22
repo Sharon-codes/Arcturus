@@ -1,3 +1,13 @@
+import psutil
+import os
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="scipy.sparse")
+
+def get_memory_usage():
+    """Get current memory usage in MB"""
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / 1024 / 1024  # Convert to MB
+
 """
 Flask Web Application for Meteorite Organics Spectral Analysis
 """
@@ -19,7 +29,7 @@ from src.discovery import ChemicalDiscovery
 app = Flask(__name__)
 CORS(app)
 
-# Global model and data
+# Global model and data - LAZY LOADING to save memory
 MODEL = None
 DEVICE = None
 RESULTS_DF = None
@@ -27,29 +37,56 @@ DISCOVERY = None
 PARSER = None
 PREPROCESSOR = None
 
-def load_model_and_data():
-    """Load trained model and results on startup"""
-    global MODEL, DEVICE, RESULTS_DF, DISCOVERY, PARSER, PREPROCESSOR
-    
-    print("Loading model and data...")
-    
-    # Load model
-    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    MODEL = SpectralCNN(num_classes=len(FAMILIES))
-    MODEL.load_state_dict(torch.load('best_model.pth', map_location=DEVICE))
-    MODEL.to(DEVICE)
-    MODEL.eval()
-    
-    # Load results
-    RESULTS_DF = pd.read_csv('hybrid_scientific_results.csv')
-    
-    # Initialize discovery and preprocessing
-    DISCOVERY = ChemicalDiscovery(MODEL, device=DEVICE)
-    PARSER = UniversalParser()
-    PREPROCESSOR = SpectralPreprocessor()
-    
-    print(f"✓ Model loaded on {DEVICE}")
-    print(f"✓ Results loaded: {len(RESULTS_DF)} spectra")
+def load_model_lazy():
+    """Load model only when needed"""
+    global MODEL, DEVICE
+    if MODEL is None:
+        print("Loading model...")
+        DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+        MODEL = SpectralCNN(num_classes=len(FAMILIES))
+        MODEL.load_state_dict(torch.load('best_model.pth', map_location=DEVICE))
+        MODEL.to(DEVICE)
+        MODEL.eval()
+        mem_usage = get_memory_usage()
+        print(f"✓ Model loaded on {DEVICE} (Memory: {mem_usage:.1f} MB)")
+    return MODEL, DEVICE
+
+def load_results_lazy():
+    """Load results DataFrame only when needed"""
+    global RESULTS_DF
+    if RESULTS_DF is None:
+        print("Loading results data...")
+        # Load with memory optimization - only load necessary columns
+        RESULTS_DF = pd.read_csv('hybrid_scientific_results.csv', usecols=['id', 'source', 'cluster_membership'])
+        mem_usage = get_memory_usage()
+        print(f"✓ Results loaded: {len(RESULTS_DF)} spectra (Memory: {mem_usage:.1f} MB)")
+    return RESULTS_DF
+
+def load_discovery_lazy():
+    """Load discovery module only when needed"""
+    global DISCOVERY, MODEL, DEVICE
+    if DISCOVERY is None:
+        if MODEL is None:
+            load_model_lazy()
+        DISCOVERY = ChemicalDiscovery(MODEL, device=DEVICE)
+        print("✓ Discovery module loaded")
+    return DISCOVERY
+
+def load_parser_lazy():
+    """Load parser only when needed"""
+    global PARSER
+    if PARSER is None:
+        PARSER = UniversalParser()
+        print("✓ Parser loaded")
+    return PARSER
+
+def load_preprocessor_lazy():
+    """Load preprocessor only when needed"""
+    global PREPROCESSOR
+    if PREPROCESSOR is None:
+        PREPROCESSOR = SpectralPreprocessor()
+        print("✓ Preprocessor loaded")
+    return PREPROCESSOR
 
 @app.route('/')
 def index():
@@ -96,8 +133,13 @@ def get_cluster_details(cluster_id):
 @app.route('/api/predict', methods=['POST'])
 def predict_spectrum():
     """Predict chemical family for uploaded spectrum"""
-    ensure_data_loaded()
     try:
+        # Load required components lazily
+        MODEL, DEVICE = load_model_lazy()
+        PARSER = load_parser_lazy()
+        PREPROCESSOR = load_preprocessor_lazy()
+        DISCOVERY = load_discovery_lazy()
+        
         if 'file' not in request.files:
             return jsonify({'error': 'No file uploaded'}), 400
         
@@ -132,6 +174,11 @@ def predict_spectrum():
                 logits, embeddings = MODEL(x_tensor)
                 probs = torch.softmax(logits, dim=1)
                 conf, pred = probs.max(1)
+            
+            # Memory cleanup
+            del x_tensor, logits, embeddings
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             
             # Get family
             family_id = pred.item()
@@ -197,12 +244,11 @@ def search_spectra():
     return jsonify(results)
 
 # Load resources immediately for Gunicorn - REMOVED for Lazy Loading pattern
-# load_model_and_data() 
+# load_model_and_data()
 
 def ensure_data_loaded():
-    global RESULTS_DF
-    if RESULTS_DF is None:
-        load_model_and_data()
+    """Ensure results data is loaded (lazy loading)"""
+    load_results_lazy()
 
 if __name__ == '__main__':
     print("\n" + "="*60)

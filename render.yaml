@@ -3,8 +3,14 @@ services:
     name: arcturus-recon
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn webapp:app --timeout 120 --workers 1 --threads 8
-    plan: free
+    startCommand: gunicorn webapp:app --timeout 120 --workers 1 --threads 2 --worker-class gthread --worker-tmp-dir /tmp
+    plan: starter  # Upgrade from free plan for more memory
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: PYTORCH_CUDA_ALLOC_CONF
+        value: max_split_size_mb:512
+      - key: OMP_NUM_THREADS
+        value: 1
+      - key: MKL_NUM_THREADS
+        value: 1
