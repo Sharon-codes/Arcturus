@@ -177,6 +177,8 @@ def predict_spectrum():
             
             # Memory cleanup
             del x_tensor, logits, embeddings
+            import gc
+            gc.collect()
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
             

@@ -3,8 +3,8 @@ services:
     name: arcturus-recon
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn webapp:app --timeout 120 --workers 1 --threads 2 --worker-class gthread --worker-tmp-dir /tmp
-    plan: starter  # Upgrade from free plan for more memory
+    startCommand: gunicorn webapp:app --timeout 120 --workers 1 --threads 1
+    plan: free
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
