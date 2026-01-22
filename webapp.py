@@ -59,6 +59,7 @@ def index():
 @app.route('/api/stats')
 def get_stats():
     """Get dataset statistics"""
+    ensure_data_loaded()
     pds = RESULTS_DF[RESULTS_DF['source'] == 'PDS']
     pahdb = RESULTS_DF[RESULTS_DF['source'] == 'PAHdb']
     
@@ -79,6 +80,7 @@ def get_stats():
 @app.route('/api/cluster/<int:cluster_id>')
 def get_cluster_details(cluster_id):
     """Get details for a specific cluster"""
+    ensure_data_loaded()
     pds = RESULTS_DF[RESULTS_DF['source'] == 'PDS']
     cluster_data = pds[pds['cluster_membership'] == cluster_id]
     
@@ -94,6 +96,7 @@ def get_cluster_details(cluster_id):
 @app.route('/api/predict', methods=['POST'])
 def predict_spectrum():
     """Predict chemical family for uploaded spectrum"""
+    ensure_data_loaded()
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'No file uploaded'}), 400
@@ -169,6 +172,7 @@ def predict_spectrum():
 @app.route('/api/search')
 def search_spectra():
     """Search for spectra by ID"""
+    ensure_data_loaded()
     query = request.args.get('q', '').lower()
     if not query:
         return jsonify([])
@@ -178,8 +182,13 @@ def search_spectra():
     
     return jsonify(results)
 
-# Load resources immediately for Gunicorn
-load_model_and_data()
+# Load resources immediately for Gunicorn - REMOVED for Lazy Loading pattern
+# load_model_and_data() 
+
+def ensure_data_loaded():
+    global RESULTS_DF
+    if RESULTS_DF is None:
+        load_model_and_data()
 
 if __name__ == '__main__':
     print("\n" + "="*60)
