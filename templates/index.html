@@ -540,7 +540,7 @@
             }
         }
 
-        /* MOBILE RESPONSIVENESS ULTRA-CLEAN */
+        /* MOBILE RESPONSIVENESS ULTRA-CLEAN v3 */
         @media (max-width: 900px) {
 
             html,
@@ -561,26 +561,38 @@
                 box-sizing: border-box;
             }
 
+            /* HIDE CLUTTER ON MOBILE */
+            .panel-left {
+                display: none !important;
+            }
+
             header {
+                display: flex;
                 flex-direction: column;
                 gap: 10px;
                 padding: 15px 10px;
                 width: 100%;
+                align-items: center;
                 margin: 0;
             }
 
             header h1 {
-                font-size: 1.6em;
-                letter-spacing: 3px;
+                font-size: 1.8em;
+                letter-spacing: 4px;
+                margin: 0;
                 line-height: 1.2;
             }
 
-            /* RE-ORDER PANELS: Action First! */
+            .mission-clock {
+                text-align: center;
+                font-size: 0.8em;
+            }
+
+            /* ORDERING: Action -> Context -> Footer */
             .panel-center {
                 order: 1;
                 width: 100%;
                 overflow: hidden;
-                /* contain graph */
             }
 
             .panel-right {
@@ -588,61 +600,47 @@
                 width: 100%;
             }
 
-            .panel-left {
+            #dashboard-footer {
                 order: 3;
                 width: 100%;
-            }
-
-            #main-dashboard.analysis-mode .panel-left {
-                display: none;
-            }
-
-            #main-dashboard.analysis-mode .panel-right {
-                order: 2;
-                /* Keep next to results */
+                display: flex;
+                flex-direction: column;
             }
 
             .card {
-                padding: 15px;
+                padding: 20px;
                 width: 100%;
                 box-sizing: border-box;
             }
 
-            /* Fix Pre-Flight Card Padding */
-            div[style*="padding: 40px"] {
-                padding: 20px !important;
-            }
-
-            .big-number {
-                font-size: 1.8em;
-            }
-
-            /* Fix Graph Cutoff */
+            /* Fix Graph and Pre-Flight Widths */
             #spectrumPlot {
                 width: 100% !important;
                 min-height: 250px;
                 overflow-x: hidden;
             }
 
+            div[style*="padding: 40px"] {
+                padding: 20px !important;
+            }
+
+            /* Typography Scaling */
+            .big-number {
+                font-size: 1.8em;
+            }
+
             .metric-title {
-                font-size: 0.75em;
+                font-size: 0.8em;
             }
 
             #res-family {
-                font-size: 1.5em !important;
+                font-size: 1.6em !important;
             }
 
-            /* Force 1 column grids */
+            /* Force 1 Column Grids */
             div[style*="display: grid"],
             .planet-grid {
                 grid-template-columns: 1fr !important;
-            }
-
-            #dashboard-footer {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                order: 4;
             }
 
             #footer-educational-content>div[style*="display: flex"] {
