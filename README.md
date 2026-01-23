@@ -1,10 +1,10 @@
-# ARCTURUS: Meteorite Organic Discovery ☄️
+# CHANDRA: Metabolite Organic Discovery ☄️
 
-**Arcturus** is a hybrid supervised–unsupervised deep learning framework designed to automate the identification and chemical family mapping of prebiotic organics in extraterrestrial infrared (IR) spectra. This research automates the search for the "seeds of life" in meteorite samples.
+**CHANDRA** is a hybrid supervised–unsupervised deep learning framework designed to automate the identification and chemical family mapping of prebiotic organics in extraterrestrial infrared (IR) spectra. This research automates the search for the "seeds of life" in meteorite samples.
 
 ## 🔬 Scientific Framework
 
-The core of Arcturus is a Deep Neural Network trained on the **NASA Ames PAHdb** (Polycyclic Aromatic Hydrocarbon Database). It leverages a **ResNet-1D architecture** with Squeeze-and-Excitation (SE) blocks to extract meaningful features from complex, noisy spectral data.
+The core of Chandra is a Deep Neural Network trained on the **NASA Ames PAHdb** (Polycyclic Aromatic Hydrocarbon Database). It leverages a **ResNet-1D architecture** with Squeeze-and-Excitation (SE) blocks to extract meaningful features from complex, noisy spectral data.
 
 ### Key Capabilities
 - **Automated Classification**: Instantly categorizes spectra into structural families:
@@ -43,7 +43,7 @@ If the AI highlights peaks around 2200 cm⁻¹ and classifies as "N-PAH" with 92
 
 ## 🚀 Application Stack
 
-This repository contains the web application interface for Arcturus.
+This repository contains the web application interface for Chandra.
 
 - **Backend**: Flask (Python) serving the PyTorch model inference.
 - **Frontend**: HTML5/CSS3 with a "Space/Sci-Fi" aesthetic, featuring dynamic JS plotting (Plotly.js) and responsive design.
@@ -53,8 +53,8 @@ This repository contains the web application interface for Arcturus.
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Sharon-codes/Arcturus.git
-   cd Arcturus
+   git clone https://github.com/Sharon-codes/Chandra-Model-IIST.git
+   cd Chandra-Model-IIST
    ```
 
 2. **Install Dependencies**:
