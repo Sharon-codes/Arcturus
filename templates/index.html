@@ -540,7 +540,7 @@
             }
         }
 
-        /* MOBILE RESPONSIVENESS ULTRA-CLEAN v3 */
+        /* MOBILE RESPONSIVENESS ULTRA-CLEAN v4 (STRICT BLOCK) */
         @media (max-width: 900px) {
 
             html,
@@ -552,16 +552,20 @@
             }
 
             #main-dashboard {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
+                display: flex !important;
+                flex-direction: column !important;
+                /* Force vertical stacking */
+                width: 100% !important;
+                height: auto !important;
                 min-height: 100vh;
                 padding: 10px;
                 gap: 20px;
                 box-sizing: border-box;
+                grid-template-columns: 1fr !important;
+                /* Override any grid */
             }
 
-            /* HIDE CLUTTER ON MOBILE */
+            /* FORCE HIDE Left Panel */
             .panel-left {
                 display: none !important;
             }
@@ -588,40 +592,58 @@
                 font-size: 0.8em;
             }
 
-            /* ORDERING: Action -> Context -> Footer */
+            /* STRICT PANEL SIZING */
+            .panel-center,
+            .panel-right,
+            #dashboard-footer {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                margin: 0 !important;
+                flex: none !important;
+                /* Stop flux shrinking */
+            }
+
             .panel-center {
                 order: 1;
-                width: 100%;
-                overflow: hidden;
             }
 
             .panel-right {
                 order: 2;
-                width: 100%;
             }
 
             #dashboard-footer {
                 order: 3;
-                width: 100%;
-                display: flex;
-                flex-direction: column;
             }
 
             .card {
                 padding: 20px;
-                width: 100%;
+                width: 100% !important;
                 box-sizing: border-box;
             }
 
-            /* Fix Graph and Pre-Flight Widths */
-            #spectrumPlot {
+            /* Fix Pre-Flight Card */
+            #input-section {
                 width: 100% !important;
-                min-height: 250px;
-                overflow-x: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #input-section>div {
+                width: 100% !important;
+                box-sizing: border-box;
             }
 
             div[style*="padding: 40px"] {
                 padding: 20px !important;
+            }
+
+            #spectrumPlot {
+                width: 100% !important;
+                min-height: 250px;
+                overflow-x: hidden;
             }
 
             /* Typography Scaling */
