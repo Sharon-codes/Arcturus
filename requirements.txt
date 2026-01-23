@@ -2,11 +2,5 @@ flask
 flask-cors
 numpy
 pandas
-scipy
-scikit-learn
-plotly
 gunicorn
 tqdm
-matplotlib
-psutil
-torch --extra-index-url https://download.pytorch.org/whl/cpu
