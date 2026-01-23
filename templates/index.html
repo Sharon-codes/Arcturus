@@ -540,18 +540,19 @@
             }
         }
 
-        /* MOBILE RESPONSIVENESS */
+        /* MOBILE RESPONSIVENESS ULTRA-CLEAN */
         @media (max-width: 900px) {
+            body {
+                overflow-x: hidden;
+            }
 
-            #main-dashboard,
-            #main-dashboard.analysis-mode {
+            #main-dashboard {
                 display: flex;
                 flex-direction: column;
-                grid-template-columns: 1fr;
-                /* Reset grid if fallback */
                 height: auto;
                 min-height: 100vh;
                 padding: 10px;
+                gap: 15px;
             }
 
             header {
@@ -562,33 +563,38 @@
             }
 
             header h1 {
-                font-size: 1.5em;
+                font-size: 1.8em;
                 letter-spacing: 5px;
             }
 
             .mission-clock {
                 text-align: center;
-                font-size: 0.9em;
+                font-size: 0.8em;
             }
 
-            /* On mobile, even in analysis mode, we just stack them */
-            #main-dashboard.analysis-mode {
-                /* Inherits flex column */
-            }
-
-            /* Ensure left/footer still hide */
-            #main-dashboard.analysis-mode .panel-left,
-            #main-dashboard.analysis-mode #footer-educational-content {
-                display: none;
-            }
-
+            /* Stack Panels */
             .panel-left,
             .panel-center,
             .panel-right {
                 width: 100%;
+                height: auto;
+                overflow: visible;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
             }
 
-            /* Adjust cards for mobile */
+            /* In Analysis Mode on Mobile, we prioritize the Center(Results) */
+            #main-dashboard.analysis-mode .panel-left {
+                display: none;
+                /* Hide brief to focus on result */
+            }
+
+            /* But keep the right panel (family info) because it's important */
+            #main-dashboard.analysis-mode .panel-right {
+                order: 3;
+            }
+
             .card {
                 padding: 15px;
             }
@@ -597,21 +603,29 @@
                 font-size: 2em;
             }
 
-            /* Inputs */
-            .decode-btn {
-                padding: 15px;
-                font-size: 1em;
+            /* Adjust Explanation Cards Grid */
+            div[style*="display: grid"] {
+                grid-template-columns: 1fr !important;
             }
 
-            /* Footer cards stack */
-            .card[style*="display: flex"] {
+            /* Footer Cards Stack */
+            #dashboard-footer {
+                display: flex;
                 flex-direction: column;
-                text-align: center;
             }
 
-            /* Exception for planet nodes which are small enough */
-            .planet-node {
-                /* keep flex row */
+            #footer-educational-content>div[style*="display: flex"] {
+                flex-direction: column;
+            }
+
+            .planet-grid {
+                grid-template-columns: 1fr 1fr;
+                /* 2 cols on mobile */
+            }
+
+            /* Graph Container Height */
+            #spectrumPlot {
+                min-height: 250px;
             }
         }
     </style>
