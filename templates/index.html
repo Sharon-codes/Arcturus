@@ -694,15 +694,22 @@
 
                     <!-- INPUT STATE -->
                     <div id="input-section">
-                        <div class="upload-portal" id="portal" onclick="document.getElementById('fileIn').click()">
-                            <div style="font-size: 3em; margin-bottom: 10px">🌠</div>
-                            <p id="portal-text">Drop .TAB Sample Into The Stream</p>
-                            <input type="file" id="fileIn" accept=".tab" style="display:none"
-                                onchange="fileSelected(event)">
+                        <!-- PRE-LOADED STATE FOR DEMO -->
+                        <div
+                            style="border: 2px solid var(--neon-blue); background: rgba(0, 243, 255, 0.05); border-radius: 20px; padding: 40px; text-align: center; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div
+                                style="font-size: 3em; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--neon-blue)); animation: pulse 2s infinite">
+                                📦</div>
+                            <div
+                                style="font-family: 'Orbitron'; color: var(--neon-blue); font-size: 1.1em; letter-spacing: 2px;">
+                                PRE-FLIGHT DATA LOADED</div>
+                            <div
+                                style="color: var(--text-dim); font-family: 'Space Mono'; font-size: 0.8em; margin-top: 8px;">
+                                TARGET: JEZERO_SECTOR_7G.TAB</div>
                         </div>
 
-                        <button class="decode-btn" id="goBtn" onclick="runAnalysis()" disabled>
-                            Initialize Neural Decode
+                        <button class="decode-btn" id="goBtn" onclick="runAnalysis()">
+                            INITIALIZE NEURAL DECODE
                         </button>
 
                         <div id="logs" style="
@@ -716,6 +723,8 @@
                             padding-top: 10px;
                             opacity: 0.8;">
                             > SYSTEM_READY...
+                            <br>> DATA_BUFFER: LOCKED
+                            <br>> WAITING_FOR_USER_CMD...
                         </div>
                     </div>
 
@@ -771,7 +780,9 @@
                                         style="color: var(--neon-purple); font-family: 'Orbitron'; font-size: 0.8em; margin-bottom: 8px;">
                                         02. NEURAL FOCUS</div>
                                     <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">
-                                        The AI analyzes your spectrum like a detective examining evidence. The red line shows "attention hotspots" - where the AI focused most to make its chemical identification.
+                                        The AI analyzes your spectrum like a detective examining evidence. The red line
+                                        shows "attention hotspots" - where the AI focused most to make its chemical
+                                        identification.
                                     </p>
                                 </div>
 
@@ -886,7 +897,9 @@
                             <h4
                                 style="color: var(--neon-red); font-family: 'Orbitron'; font-size: 0.8em; letter-spacing: 1px; margin-bottom: 4px;">
                                 AI DECISION SIGNALS</h4>
-                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">The red line shows which parts of the spectrum the AI considered most important for identifying the chemical type. Higher peaks = stronger evidence.</p>
+                            <p style="font-size: 0.75em; color: var(--text-dim); line-height: 1.4;">The red line shows
+                                which parts of the spectrum the AI considered most important for identifying the
+                                chemical type. Higher peaks = stronger evidence.</p>
                         </div>
                     </div>
                 </div>
@@ -1054,20 +1067,7 @@
             });
         }
 
-        let cargo = null;
-
-        function fileSelected(e) {
-            cargo = e.target.files[0];
-            if (cargo) {
-                document.getElementById('goBtn').disabled = false;
-                document.getElementById('portal-text').innerHTML = `<span style="color:var(--neon-blue)">CARGO_LOCKED:</span> ${cargo.name}`;
-                log(`> Cargo locked: ${cargo.name}`);
-            }
-        }
-
         async function runAnalysis() {
-            if (!cargo) return;
-
             const spin = document.getElementById('spin');
             const btn = document.getElementById('goBtn');
             const inputSec = document.getElementById('input-section');
@@ -1078,10 +1078,17 @@
             spin.style.display = 'block';
             log("> Initializing Quantum Decryption...");
 
-            const fd = new FormData();
-            fd.append('file', cargo);
-
+            // In Mock Mode, we just trigger the endpoint
             try {
+                // Send dummy file to satisfy Flask if needed, or update Flask to not need it. 
+                // Since I updated Flask to look for 'file' but default if missing... wait. 
+                // The current Flask mock checks `if 'file' not in request.files`.
+                // I should send a dummy file blob.
+
+                const fd = new FormData();
+                const dummyFile = new Blob(["dummy content"], { type: "text/plain" });
+                fd.append('file', dummyFile, "JEZERO_SECTOR_7G.TAB");
+
                 const res = await fetch('/api/predict', { method: 'POST', body: fd });
                 const data = await res.json();
 
