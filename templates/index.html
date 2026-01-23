@@ -547,51 +547,50 @@
             body {
                 overflow-x: hidden;
                 width: 100%;
-                position: relative;
+                margin: 0;
+                padding: 0;
             }
 
             #main-dashboard {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-                height: auto;
                 min-height: 100vh;
                 padding: 10px;
-                gap: 15px;
+                gap: 20px;
                 box-sizing: border-box;
             }
 
             header {
                 flex-direction: column;
                 gap: 10px;
-                text-align: center;
                 padding: 15px 10px;
                 width: 100%;
+                margin: 0;
             }
 
             header h1 {
-                font-size: 1.5em;
-                /* Smaller to fit narrow screens */
+                font-size: 1.6em;
                 letter-spacing: 3px;
                 line-height: 1.2;
-                word-wrap: break-word;
             }
 
-            .mission-clock {
-                text-align: center;
-                font-size: 0.75em;
-            }
-
-            /* Stack Panels */
-            .panel-left,
-            .panel-center,
-            .panel-right {
+            /* RE-ORDER PANELS: Action First! */
+            .panel-center {
+                order: 1;
                 width: 100%;
-                height: auto;
-                overflow: visible;
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
+                overflow: hidden;
+                /* contain graph */
+            }
+
+            .panel-right {
+                order: 2;
+                width: 100%;
+            }
+
+            .panel-left {
+                order: 3;
+                width: 100%;
             }
 
             #main-dashboard.analysis-mode .panel-left {
@@ -599,15 +598,17 @@
             }
 
             #main-dashboard.analysis-mode .panel-right {
-                order: 3;
+                order: 2;
+                /* Keep next to results */
             }
 
             .card {
                 padding: 15px;
                 width: 100%;
+                box-sizing: border-box;
             }
 
-            /* Fix Pre-Flight Card Padding on Mobile */
+            /* Fix Pre-Flight Card Padding */
             div[style*="padding: 40px"] {
                 padding: 20px !important;
             }
@@ -616,29 +617,36 @@
                 font-size: 1.8em;
             }
 
-            /* Adjust Explanation Cards Grid */
-            div[style*="display: grid"] {
-                grid-template-columns: 1fr !important;
+            /* Fix Graph Cutoff */
+            #spectrumPlot {
+                width: 100% !important;
+                min-height: 250px;
+                overflow-x: hidden;
             }
 
-            /* Footer Cards Stack */
-            #dashboard-footer {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
+            .metric-title {
+                font-size: 0.75em;
             }
 
-            #footer-educational-content>div[style*="display: flex"] {
-                flex-direction: column;
+            #res-family {
+                font-size: 1.5em !important;
             }
 
-            /* FORCE 1 COLUMN PLANETS to prevent overflow */
+            /* Force 1 column grids */
+            div[style*="display: grid"],
             .planet-grid {
                 grid-template-columns: 1fr !important;
             }
 
-            #spectrumPlot {
-                min-height: 250px;
+            #dashboard-footer {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                order: 4;
+            }
+
+            #footer-educational-content>div[style*="display: flex"] {
+                flex-direction: column;
             }
         }
     </style>
