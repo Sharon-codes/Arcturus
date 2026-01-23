@@ -690,13 +690,9 @@
     <!-- Main Dynamic Desktop Layout -->
     <div id="main-dashboard">
         <header>
-            <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px; justify-content: center; width: 100%;">
                 <div class="chandra-moon"></div>
                 <h1>CHANDRA</h1>
-                <div
-                    style="background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); padding: 5px 15px; border-radius: 5px; color: var(--neon-blue); font-family: 'Space Mono'; font-size: 0.7em; letter-spacing: 2px; animation: pulse 2s infinite">
-                    SYSTEM_STATUS: ONLINE
-                </div>
             </div>
             <div class="mission-clock">
                 <span style="color: var(--text-dim)">MISSION_TIME:</span> <span id="clock">00:00:00</span><br>
@@ -1367,7 +1363,15 @@
                 }]
             };
 
-            Plotly.newPlot('spectrumPlot', [t1, t2, t3, t4], layout, { displayModeBar: false });
+            // Mobile: Disable interaction to prevent accidental scrolling issues
+            const isMobile = window.innerWidth <= 900;
+            const config = {
+                displayModeBar: false,
+                staticPlot: isMobile, // If mobile, graph is just an image (no zoom/pan)
+                responsive: true
+            };
+
+            Plotly.newPlot('spectrumPlot', [t1, t2, t3, t4], layout, config);
         }
 
         function log(msg) {
