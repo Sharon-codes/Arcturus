@@ -542,34 +542,44 @@
 
         /* MOBILE RESPONSIVENESS ULTRA-CLEAN */
         @media (max-width: 900px) {
+
+            html,
             body {
                 overflow-x: hidden;
+                width: 100%;
+                position: relative;
             }
 
             #main-dashboard {
                 display: flex;
                 flex-direction: column;
+                width: 100%;
                 height: auto;
                 min-height: 100vh;
                 padding: 10px;
                 gap: 15px;
+                box-sizing: border-box;
             }
 
             header {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
                 text-align: center;
-                padding: 15px;
+                padding: 15px 10px;
+                width: 100%;
             }
 
             header h1 {
-                font-size: 1.8em;
-                letter-spacing: 5px;
+                font-size: 1.5em;
+                /* Smaller to fit narrow screens */
+                letter-spacing: 3px;
+                line-height: 1.2;
+                word-wrap: break-word;
             }
 
             .mission-clock {
                 text-align: center;
-                font-size: 0.8em;
+                font-size: 0.75em;
             }
 
             /* Stack Panels */
@@ -584,23 +594,26 @@
                 gap: 15px;
             }
 
-            /* In Analysis Mode on Mobile, we prioritize the Center(Results) */
             #main-dashboard.analysis-mode .panel-left {
                 display: none;
-                /* Hide brief to focus on result */
             }
 
-            /* But keep the right panel (family info) because it's important */
             #main-dashboard.analysis-mode .panel-right {
                 order: 3;
             }
 
             .card {
                 padding: 15px;
+                width: 100%;
+            }
+
+            /* Fix Pre-Flight Card Padding on Mobile */
+            div[style*="padding: 40px"] {
+                padding: 20px !important;
             }
 
             .big-number {
-                font-size: 2em;
+                font-size: 1.8em;
             }
 
             /* Adjust Explanation Cards Grid */
@@ -612,18 +625,18 @@
             #dashboard-footer {
                 display: flex;
                 flex-direction: column;
+                width: 100%;
             }
 
             #footer-educational-content>div[style*="display: flex"] {
                 flex-direction: column;
             }
 
+            /* FORCE 1 COLUMN PLANETS to prevent overflow */
             .planet-grid {
-                grid-template-columns: 1fr 1fr;
-                /* 2 cols on mobile */
+                grid-template-columns: 1fr !important;
             }
 
-            /* Graph Container Height */
             #spectrumPlot {
                 min-height: 250px;
             }
